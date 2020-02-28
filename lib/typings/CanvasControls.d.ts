@@ -93,7 +93,7 @@ export declare module CanvasControls {
          * @member {Set<CanvasButton>} wgets - Canvas widgets
          */
         interface ControllableCanvasOptions {
-            target: HTMLCanvasElement;
+            readonly target: HTMLCanvasElement;
             trans?: number[];
             scl?: number[];
             dragEnabled?: boolean;
@@ -164,6 +164,7 @@ export declare module CanvasControls {
             parent: ControllableCanvas;
             enabled?: boolean;
             position?: number;
+            isDraggable?: boolean;
             [prop: string]: any;
         }
         enum UseButton {
@@ -193,6 +194,7 @@ export declare module CanvasControls {
         const ENOTNUMARR2: TypeError;
         const ENOTNUM: TypeError;
         const EISALR: ReferenceError;
+        const ENOCCANV: ReferenceError;
     }
     /**
      * Type of KeyBind
@@ -231,8 +233,8 @@ export declare module CanvasControls {
      * @prop {Set<CanvasButton>} wgets - Canvas widgets
      */
     class ControllableCanvas implements Opts.ControllableCanvasOptions {
-        target: HTMLCanvasElement;
-        context: CanvasRenderingContext2D;
+        readonly target: HTMLCanvasElement;
+        readonly context: CanvasRenderingContext2D;
         trans: number[];
         scl: number[];
         pin: number[];
@@ -257,6 +259,7 @@ export declare module CanvasControls {
         private _zoomChanged;
         private _mobile;
         private _pressed;
+        private _isDragging;
         private _clktime;
         _adapts: Opts.ControllableCanvasAdapters;
         _coordinates: number[];
@@ -316,11 +319,13 @@ export declare module CanvasControls {
         private _mobileAdapt;
         private _pcAdapt;
         private static clickPC;
+        private static pressPC;
         private static dragPC;
         private static dragMobileMove;
         private static dragMobileStart;
         private static dragMobileEnd;
         private static wheel;
+        _forceDragPC(): void;
         /**
          * Get screen-equivalent coordinates that bypass transformations.
          * @method
@@ -338,7 +343,7 @@ export declare module CanvasControls {
         press: Key[];
         down: Key[];
         up: Key[];
-        element: HTMLElement;
+        readonly element: HTMLElement;
         _bound: boolean;
         arrowMoveSpeed: number;
         arrowMoveSpeedup: number;
@@ -412,6 +417,8 @@ export declare module CanvasControls {
         enabled: boolean;
         pstate: boolean;
         position: number;
+        isDraggable: boolean;
+        _dragIgnited: boolean;
         static sensitivity: number;
         private static _idcntr;
         /**
@@ -436,6 +443,15 @@ export declare module CanvasControls {
          * @param any
          */
         click(...any: any[]): boolean;
+        /**
+         * @description OnDrag event (blocking).
+         * @author V. H.
+         * @date 2019-06-02
+         * @param {[number, number]} by - coordinates
+         * @returns {boolean}
+         * @memberof CanvasButton
+         */
+        drag(by: [number, number]): boolean;
         /**
          * Checks if pointer is above the widget
          * @param {number[]} relativeCoords
